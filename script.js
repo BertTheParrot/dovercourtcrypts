@@ -1,3 +1,23 @@
+// Mobile menu toggle
+const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+const navMenu = document.querySelector('.nav-menu');
+
+if (mobileMenuToggle && navMenu) {
+    mobileMenuToggle.addEventListener('click', function() {
+        navMenu.classList.toggle('active');
+        // Change icon
+        this.textContent = navMenu.classList.contains('active') ? '✕' : '☰';
+    });
+    
+    // Close menu when clicking a link
+    navMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', function() {
+            navMenu.classList.remove('active');
+            mobileMenuToggle.textContent = '☰';
+        });
+    });
+}
+
 // Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
