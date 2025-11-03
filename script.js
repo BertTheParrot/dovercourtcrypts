@@ -18,16 +18,34 @@ if (mobileMenuToggle && navMenu) {
     });
 }
 
-// Smooth scrolling for navigation links
+// Smooth scrolling for navigation links with navbar offset
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const targetId = this.getAttribute('href');
+        const target = document.querySelector(targetId);
         if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
+            // Dynamically get navbar height (accounts for minimized state)
+            const navbar = document.querySelector('.navbar');
+            const navbarHeight = navbar ? navbar.offsetHeight : 70;
+            
+            // Get target position
+            const targetPosition = target.offsetTop - navbarHeight;
+            
+            window.scrollTo({
+                top: Math.max(0, targetPosition), // Ensure it's not negative
+                behavior: 'smooth'
             });
+            
+            // Close mobile menu if open
+            const navMenu = document.querySelector('.nav-menu');
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            if (navMenu && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+                if (mobileMenuToggle) {
+                    mobileMenuToggle.textContent = '☰';
+                }
+            }
         }
     });
 });
@@ -108,12 +126,24 @@ document.querySelectorAll('.section').forEach(section => {
     observer.observe(section);
 });
 
-// Navbar scroll effect
+// Navbar scroll effect - minimize on mobile when scrolling
 let lastScroll = 0;
+const navbar = document.querySelector('.navbar');
+const isMobile = window.innerWidth <= 768;
+
 window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
-    const navbar = document.querySelector('.navbar');
     
+    // On mobile, minimize navbar when scrolling down
+    if (isMobile || window.innerWidth <= 768) {
+        if (currentScroll > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    }
+    
+    // Enhanced shadow when scrolled
     if (currentScroll > 100) {
         navbar.style.boxShadow = '0 4px 15px rgba(0,0,0,0.4)';
     } else {
@@ -121,5 +151,13 @@ window.addEventListener('scroll', () => {
     }
     
     lastScroll = currentScroll;
+});
+
+// Re-check mobile status on resize
+window.addEventListener('resize', () => {
+    const nowMobile = window.innerWidth <= 768;
+    if (!nowMobile) {
+        navbar.classList.remove('scrolled');
+    }
 });
 
